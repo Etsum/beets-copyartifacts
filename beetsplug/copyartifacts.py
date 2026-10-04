@@ -103,8 +103,12 @@ class CopyArtifactsPlugin(BeetsPlugin):
             return
 
         non_handled_files = []
+        # source_path is bytes. Beets >= 2.13 no longer converts the ignore
+        # patterns to bytes in sorted_walk, so convert them here.
+        ignore = [beets.util.bytestring_path(p)
+                  for p in config['ignore'].as_str_seq()]
         for root, dirs, files in beets.util.sorted_walk(
-                    source_path, ignore=config['ignore'].as_str_seq()):
+                    source_path, ignore=ignore):
             for filename in files:
                 source_file = os.path.join(root, filename)
 
