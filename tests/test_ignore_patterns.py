@@ -43,6 +43,21 @@ class IgnorePatternTest(unittest.TestCase):
         queued = sorted(os.path.basename(f) for f in plugin._process_queue[0]['files'])
         self.assertEqual(queued, [b'cover.jpg', b'origin.yaml'])
 
+    def test_process_events_copies_artifacts(self):
+        # Beets 2.13 made the DefaultTemplateFunctions(item, lib) arguments
+        # required; the ext: path formats below go through that code.
+        config['paths'] = {'default': '$albumartist/$album/$title', 'ext:jpg': '$albumpath/cover'}
+        config['import']['move'] = False
+        plugin = CopyArtifactsPlugin()
+        item = SimpleNamespace(artist='7co', albumartist='7co', album='Neko Jarashi')
+        source = os.path.join(self.src, '01. track.flac').encode()
+        destination = os.path.join(self.dest, '01 - track.flac').encode()
+
+        plugin.collect_artifacts(item, source, destination)
+        plugin.process_events()
+
+        self.assertEqual(sorted(os.listdir(self.dest)), ['cover.jpg', 'origin.yaml'])
+
 
 if __name__ == '__main__':
     unittest.main()
