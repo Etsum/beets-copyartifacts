@@ -59,7 +59,9 @@ class CopyArtifactsPlugin(BeetsPlugin):
             subpath_tmpl = Template(path_format)
 
         # Get template funcs and evaluate against mapping
-        funcs = DefaultTemplateFunctions().functions()
+        # Beets >= 2.13 requires the item and lib arguments. None keeps the
+        # old behaviour: functions that need them (aunique) give ''.
+        funcs = DefaultTemplateFunctions(None, None).functions()
         file_path = subpath_tmpl.substitute(mapping, funcs) + file_ext.decode('utf8')
 
         # Sanitize filename
